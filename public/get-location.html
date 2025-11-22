@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحديد موقعي</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            direction: rtl;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .coord {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📍 تحديد موقعي الحالي</h1>
+        <p>اضغط الزر للحصول على إحداثياتك</p>
+
+        <button onclick="getLocation()">🌍 احصل على موقعي</button>
+
+        <div id="result">
+            <h3>موقعك الحالي:</h3>
+            <div class="coord" id="lat"></div>
+            <div class="coord" id="lng"></div>
+            <div style="margin-top: 15px; color: #666;" id="accuracy"></div>
+            <button onclick="copyLocation()" style="background: #28a745; margin-top: 15px;">
+                📋 نسخ للحافظة
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentLat, currentLng;
+
+        function getLocation() {
+            if (!navigator.geolocation) {
+                alert('❌ المتصفح لا يدعم تحديد الموقع');
+                return;
+            }
+
+            document.getElementById('result').style.display = 'none';
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    currentLat = position.coords.latitude;
+                    currentLng = position.coords.longitude;
+                    const accuracy = Math.round(position.coords.accuracy);
+
+                    document.getElementById('lat').textContent = 'Latitude: ' + currentLat;
+                    document.getElementById('lng').textContent = 'Longitude: ' + currentLng;
+                    document.getElementById('accuracy').textContent = 'الدقة: ' + accuracy + ' متر';
+                    document.getElementById('result').style.display = 'block';
+                },
+                (error) => {
+                    let msg = '';
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            msg = 'يجب السماح بالوصول للموقع';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            msg = 'الموقع غير متاح';
+                            break;
+                        case error.TIMEOUT:
+                            msg = 'انتهت مهلة الطلب';
+                            break;
+                    }
+                    alert('❌ ' + msg);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        function copyLocation() {
+            const text = `"lat": ${currentLat},\n"lng": ${currentLng}`;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ تم النسخ!\nالصق في ملف data.json');
+            });
+        }
+    </script>
+</body>
+
+</html>

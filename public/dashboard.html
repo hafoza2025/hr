@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - نظام الحضور والانصراف</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏢 لوحة التحكم</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#overview" class="nav-item active" data-section="overview">📊 نظرة عامة</a>
+                <a href="#employees" class="nav-item" data-section="employees">👥 الموظفين</a>
+                <a href="#attendance" class="nav-item" data-section="attendance">📋 سجل الحضور</a>
+                <a href="#reports" class="nav-item" data-section="reports">📈 التقارير</a>
+                <a href="#settings" class="nav-item" data-section="settings">⚙️ إعدادات الشركة</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h1 id="pageTitle">نظرة عامة</h1>
+                <div class="user-info">
+                    <span>مدير النظام</span>
+                    <button class="btn-logout" onclick="window.location.href='/login.html'">تسجيل الخروج</button>
+                </div>
+            </header>
+
+            <!-- Overview Section -->
+            <section id="overview-section" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <h3 id="totalEmployees">0</h3>
+                            <p>إجمالي الموظفين</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <h3 id="presentToday">0</h3>
+                            <p>حاضر اليوم</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">❌</div>
+                        <div class="stat-info">
+                            <h3 id="absentToday">0</h3>
+                            <p>غائب اليوم</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏰</div>
+                        <div class="stat-info">
+                            <h3 id="lateToday">0</h3>
+                            <p>متأخر اليوم</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h2>📊 آخر التسجيلات</h2>
+                    <div id="recentAttendance" class="table-container"></div>
+                </div>
+            </section>
+
+            <!-- Employees Section -->
+            <section id="employees-section" class="content-section">
+                <div class="section-header">
+                    <h2>👥 إدارة الموظفين</h2>
+                    <button class="btn btn-primary" onclick="showAddEmployeeModal()">+ إضافة موظف جديد</button>
+                </div>
+
+                <div class="section-card">
+                    <div id="employeesList" class="table-container"></div>
+                </div>
+            </section>
+
+            <!-- Attendance Section -->
+            <section id="attendance-section" class="content-section">
+                <div class="section-header">
+                    <h2>📋 سجل الحضور الكامل</h2>
+                    <div>
+                        <input type="date" id="filterDate"
+                            style="padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+                        <button class="btn btn-primary" onclick="filterAttendance()">بحث</button>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <div id="attendanceList" class="table-container"></div>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reports-section" class="content-section">
+                <h2>📈 التقارير</h2>
+
+                <div class="section-card">
+                    <h3>تقرير شهري</h3>
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <select id="reportMonth" style="padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+                            <option value="1">يناير</option>
+                            <option value="2">فبراير</option>
+                            <option value="3">مارس</option>
+                            <option value="4">أبريل</option>
+                            <option value="5">مايو</option>
+                            <option value="6">يونيو</option>
+                            <option value="7">يوليو</option>
+                            <option value="8">أغسطس</option>
+                            <option value="9">سبتمبر</option>
+                            <option value="10">أكتوبر</option>
+                            <option value="11">نوفمبر</option>
+                            <option value="12">ديسمبر</option>
+                        </select>
+                        <select id="reportYear" style="padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="generateReport()">إنشاء التقرير</button>
+                        <button class="btn btn-success" onclick="exportToExcel()">📥 تصدير Excel</button>
+                    </div>
+
+                    <div id="reportContent" class="table-container"></div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings-section" class="content-section">
+                <h2>⚙️ إعدادات الشركة</h2>
+
+                <div class="section-card">
+                    <form id="settingsForm" style="display: flex; flex-direction: column; gap: 20px;">
+                        <div>
+                            <label><strong>اسم الشركة</strong></label>
+                            <input type="text" id="companyName" class="form-input" required>
+                        </div>
+
+                        <div>
+                            <label><strong>كود الشركة (Prefix)</strong></label>
+                            <input type="text" id="companyCode" class="form-input" placeholder="مثال: MSW" required>
+                        </div>
+
+                        <div>
+                            <label><strong>نطاق العمل (بالمتر)</strong></label>
+                            <input type="number" id="radiusMeters" class="form-input" min="20" max="5000" required>
+                            <small style="color: #666;">المسافة المسموحة لتسجيل الحضور (مثال: 80 متر)</small>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <label><strong>موقع الشركة (Latitude)</strong></label>
+                                <input type="number" step="0.000001" id="companyLat" class="form-input" required>
+                            </div>
+
+                            <div>
+                                <label><strong>موقع الشركة (Longitude)</strong></label>
+                                <input type="number" step="0.000001" id="companyLng" class="form-input" required>
+                            </div>
+                        </div>
+
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                            <p style="margin-bottom: 10px; font-weight: bold;">خيارات الأمان:</p>
+
+                            <div style="margin-bottom: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" id="allowVpn" style="margin-left: 10px;">
+                                    <span>السماح بـ VPN (غير مستحسن)</span>
+                                </label>
+                            </div>
+
+                            <div>
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" id="deviceLimit" style="margin-left: 10px;">
+                                    <span>ربط كل موظف بـ IP واحد (مستحسن)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="padding: 15px;">💾 حفظ الإعدادات</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Adding Employee -->
+    <div id="addEmployeeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddEmployeeModal()">&times;</span>
+            <h2>إضافة موظف جديد</h2>
+
+            <form id="addEmployeeForm" style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                <div>
+                    <label><strong>اسم الموظف *</strong></label>
+                    <input type="text" id="newEmployeeName" class="form-input" required placeholder="مثال: أحمد محمد">
+                </div>
+
+                <div>
+                    <label><strong>رقم الهاتف</strong></label>
+                    <input type="tel" id="newEmployeePhone" class="form-input" placeholder="مثال: 01012345678">
+                </div>
+
+                <div>
+                    <label><strong>القسم *</strong></label>
+                    <input type="text" id="newEmployeeDepartment" class="form-input" required placeholder="مثال: IT">
+                </div>
+
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-right: 4px solid #2196f3;">
+                    <p style="margin: 0; font-size: 14px; color: #1976d2;">
+                        💡 <strong>ملاحظة:</strong> سيتم إنشاء كود موظف تلقائياً (مثال: MSW-EMP-000001)
+                    </p>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="padding: 12px;">✅ إضافة الموظف</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Binding IP -->
+    <div id="bindIPModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeBindIPModal()">&times;</span>
+            <h2>ربط IP بالموظف</h2>
+
+            <div style="margin: 20px 0;">
+                <p><strong>الموظف:</strong> <span id="bindEmployeeName"></span></p>
+                <p><strong>الكود:</strong> <span id="bindEmployeeCode"></span></p>
+            </div>
+
+            <div
+                style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-right: 4px solid #ffc107;">
+                <p style="margin: 0; font-size: 14px; color: #856404;">
+                    ⚠️ <strong>تعليمات:</strong><br>
+                    1. اطلب من الموظف فتح الرابط من موبايله:<br>
+                    <code
+                        style="background: white; padding: 5px; border-radius: 4px; display: inline-block; margin-top: 5px;">http://[SERVER-IP]:3000/mobile.html</code><br>
+                    2. سيظهر له IP موبايله<br>
+                    3. أدخل الـ IP هنا
+                </p>
+            </div>
+
+            <form id="bindIPForm" style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label><strong>IP الموبايل *</strong></label>
+                    <input type="text" id="employeeIP" class="form-input" required placeholder="مثال: 192.168.1.100">
+                </div>
+
+                <button type="submit" class="btn btn-primary">🔗 ربط IP</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/dashboard.js"></script>
+</body>
+
+</html>

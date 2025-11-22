@@ -1,0 +1,19 @@
+{
+  "name": "attendance-system",
+  "version": "2.0.0",
+  "description": "نظام حضور وانصراف بـ GPS + Supabase",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "devDependencies": {
+    "vercel": "^33.0.0"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}

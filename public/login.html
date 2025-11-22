@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+    <div class="container" style="max-width: 400px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #667eea; margin-bottom: 10px;">🏢 نظام الحضور والانصراف</h1>
+            <p style="color: #666;">تسجيل الدخول</p>
+        </div>
+
+        <div id="loginMessage" class="status-message" style="display: none;"></div>
+
+        <form id="loginForm" style="display: flex; flex-direction: column; gap: 20px;">
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: bold;">رقم الموظف أو الكود</label>
+                <input type="text" id="employeeId" placeholder="مثال: 1 أو MSW-EMP-000001" required
+                    style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+            </div>
+
+            <button type="submit" class="btn">
+                🔐 دخول
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+            <p style="color: #666; font-size: 14px;">
+                للدخول كمدير: <a href="/dashboard.html" style="color: #667eea; text-decoration: none;">لوحة التحكم</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const input = document.getElementById('employeeId').value.trim();
+            const msgDiv = document.getElementById('loginMessage');
+
+            // البحث عن الموظف (بالـ ID أو الكود)
+            try {
+                const response = await fetch('/api/employee/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ search: input })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.employee) {
+                    // حفظ في Session Storage
+                    sessionStorage.setItem('employee_id', data.employee.id);
+                    sessionStorage.setItem('employee_name', data.employee.name);
+
+                    // الانتقال لصفحة الموظف
+                    window.location.href = '/employee.html';
+                } else {
+                    msgDiv.textContent = '❌ الموظف غير موجود';
+                    msgDiv.className = 'status-message status-error';
+                    msgDiv.style.display = 'block';
+                }
+
+            } catch (error) {
+                msgDiv.textContent = '❌ خطأ في الاتصال';
+                msgDiv.className = 'status-message status-error';
+                msgDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>
